@@ -13,10 +13,8 @@ struct base_response *base_response_new(struct _u_response *response)
   json_t *master_json = json_object();
   json_t *data_json = json_object();
 
-  if (json_object_set_new(master_json, "code", json_integer(0)) != 0) {
-    return NULL;
-  }
-  if (json_object_set_new(master_json, "server_time", json_integer((unsigned long)time(NULL))) != 0) {
+  if (json_object_set_new(master_json, "code", json_integer(0)) != 0 || json_object_set_new(master_json, "server_time", json_integer((unsigned long)time(NULL))) != 0) {
+    free(br);
     return NULL;
   }
 

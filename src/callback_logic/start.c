@@ -14,13 +14,16 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   }
   
   if (json_object_set_new(br->data_json, "asset_hash", json_string("a582d735ccff596433e66ea520dcc260")) != 0) {
+    free(br);
     goto internal_server_error;
   }
   if (json_object_set_new(br->master_json, "data", br->data_json) != 0) {
+    free(br);
     goto internal_server_error;
   }
 
   ulfius_set_string_body_response(response, 200, encrypt_packet(br->master_json));
+  free(br);
   return U_CALLBACK_CONTINUE;
 
   internal_server_error:
