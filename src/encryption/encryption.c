@@ -120,34 +120,38 @@ char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *cipher_text, int *len)
   return plain_text;
 }
 
-unsigned char *encrypt_packet(json_t *json)
+unsigned char *encrypt_packet(json_t *json_input)
 {
   EVP_CIPHER_CTX *enc_context = EVP_CIPHER_CTX_new();
   aes_init_enc(enc_context);
   
   unsigned char *ciphered_json = NULL;
 
-  char *json_string = json_dumps(json, 0);
+  char *json_string = json_dumps(json_input, 0);
   int len = strlen(json_string);
 
   ciphered_json = aes_encrypt(enc_context, json_string, &len);
-  
+
+  free(json_string);
+  EVP_CIPHER_CTX_free(enc_context);
+
   unsigned char* cipher_with_appended_iv = 
     (unsigned char*)malloc((len + IV_LENGTH) * sizeof(unsigned char));
 
   memset(cipher_with_appended_iv, '0', IV_LENGTH); // FIXME: hardcoded IV
   memcpy(cipher_with_appended_iv + IV_LENGTH, ciphered_json, len);
 
+  free(ciphered_json);
+
   char *base64_buffer = NULL;
   encode_base64(cipher_with_appended_iv, &base64_buffer, len + IV_LENGTH);
 
   free(cipher_with_appended_iv);
-  free(json_string);
 
   return base64_buffer;
 }
 
-json_t *decrypt_packet(char *base64_input) 
+void *decrypt_packet(char *base64_input, json_t *json_output) 
 {
   unsigned char *base64_buffer = NULL;
   int len = decode_base64(base64_input, &base64_buffer) - IV_LENGTH;
@@ -160,11 +164,13 @@ json_t *decrypt_packet(char *base64_input)
   aes_init_dec(dec_context, decryption_iv);
 
   char *decrypted_json_string = aes_decrypt(dec_context, base64_buffer, &len);
-
-  json_t *json = json_loads(decrypted_json_string, 0, NULL);
+  EVP_CIPHER_CTX_free(dec_context);
 
   free(decryption_iv);
   free(base64_buffer);
 
-  return json;
+  json_output = json_loads(decrypted_json_string, 0, NULL);
+
+  free(decrypted_json_string);
+  json_decref(json_output);
 }

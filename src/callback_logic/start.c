@@ -22,8 +22,18 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
     goto internal_server_error;
   }
 
-  ulfius_set_string_body_response(response, 200, encrypt_packet(br->master_json));
+  char *encrypt_buffer = NULL;
+  encrypt_buffer = encrypt_packet(br->master_json);
+
+  ulfius_set_string_body_response(response, 200, encrypt_buffer);
+  
+  free(encrypt_buffer);
+
+  json_decref(br->master_json);
+  json_decref(br->data_json);
+
   free(br);
+
   return U_CALLBACK_CONTINUE;
 
   internal_server_error:

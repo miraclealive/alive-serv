@@ -12,6 +12,6 @@ int aes_init_enc(EVP_CIPHER_CTX *e_ctx);
 int aes_init_dec(EVP_CIPHER_CTX *e_ctx, unsigned char *decryption_iv);
 unsigned char *aes_encrypt(EVP_CIPHER_CTX *e, char *plain_text, int *len);
 char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *cipher_text, int *len);
-unsigned char *encrypt_packet(json_t *json);
-json_t *decrypt_packet(char *base64_input);
+unsigned char *encrypt_packet(json_t *json_input);
+void *decrypt_packet(char *base64_input, json_t *json_output);
 
