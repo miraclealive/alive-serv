@@ -28,10 +28,12 @@ int main()
   // Endpoint list declaration
 
   // Add static file callback function to maintenance endpoint
-  ulfius_add_endpoint_by_val(&instance, "GET", "/maintenance/maintenance.json", NULL, 0, &callback_static_file, &config);
+  ulfius_add_endpoint_by_val(&instance, "GET", "/maintenance/maintenance.json", 
+                             NULL, 0, &callback_static_file, &config);
 
   // Add callbacks to game endpoints
-  ulfius_add_endpoint_by_val(&instance, "POST", "/api/start/assetHash", NULL, 0, &callback_assethash, NULL);
+  ulfius_add_endpoint_by_val(&instance, "GET", "/api/start/assetHash",
+                             NULL, 0, &callback_assethash, NULL);
 
   // Start the framework
   if (ulfius_start_framework(&instance) == U_OK) {
