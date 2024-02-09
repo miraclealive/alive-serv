@@ -16,12 +16,13 @@ int main()
   // Initialize instance with the port number
   if (ulfius_init_instance(&instance, PORT, NULL, NULL) != U_OK) {
     fprintf(stderr, "Error with ulfius_init_instance, aborting\n");
-    return(1);
+    return 1;
   }
 
   // Set up config object for static file serving
   config.files_path = "static";
   config.redirect_on_404 = NULL;
+  config.mime_types = NULL;
   u_map_put(config.mime_types, ".json", "application/octet-stream");
 
   // Endpoint list declaration
