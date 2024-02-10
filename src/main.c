@@ -32,7 +32,7 @@ int main()
                              NULL, 0, &callback_static_file, &config);
 
   // Add callbacks to game endpoints
-  ulfius_add_endpoint_by_val(&instance, "GET", "/api/start/assetHash",
+  ulfius_add_endpoint_by_val(&instance, "POST", "/api/start/assetHash",
                              NULL, 0, &callback_assethash, NULL);
 
   // Start the framework

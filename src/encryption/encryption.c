@@ -151,7 +151,7 @@ unsigned char *encrypt_packet(json_t *json_input)
   return base64_buffer;
 }
 
-void *decrypt_packet(char *base64_input, json_t *json_output) 
+void *decrypt_packet(char *base64_input, json_t **json_output) 
 {
   unsigned char *base64_buffer = NULL;
   int len = decode_base64(base64_input, &base64_buffer) - IV_LENGTH;
@@ -169,8 +169,7 @@ void *decrypt_packet(char *base64_input, json_t *json_output)
   free(decryption_iv);
   free(base64_buffer);
 
-  json_output = json_loads(decrypted_json_string, 0, NULL);
+  (*json_output) = json_loads(decrypted_json_string, 0, NULL);
 
   free(decrypted_json_string);
-  json_decref(json_output);
 }
