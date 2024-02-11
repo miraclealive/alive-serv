@@ -6,9 +6,7 @@
 
 #include "encryption.h"
 
-const int IV_LENGTH = 16;
 const unsigned char *ENCRYPTION_KEY = "3559b435f24b297a79c68b9709ef2125";
-unsigned char ENCRYPTION_IV[IV_LENGTH];
 
 int encode_base64(unsigned const char* input, char** buffer, int input_size)
 { 
@@ -64,16 +62,10 @@ int decode_base64(char* base64_input, unsigned char** buffer)
   return decode_len;
 }
 
-int aes_init_enc(EVP_CIPHER_CTX *e_ctx)
+int aes_init_enc(EVP_CIPHER_CTX *e_ctx, unsigned char *encryption_iv)
 {
-  srand(time(NULL));
-
-  for (int i = 0; i < IV_LENGTH; i++) {
-    ENCRYPTION_IV[i] = (unsigned char)rand() % 256;
-  }
-
   EVP_CIPHER_CTX_init(e_ctx);
-  EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, ENCRYPTION_KEY, ENCRYPTION_IV);
+  EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, ENCRYPTION_KEY, encryption_iv);
   return 0;
 }
 
@@ -128,8 +120,16 @@ char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *cipher_text, int *len)
 
 unsigned char *encrypt_packet(json_t *json_input)
 {
+  unsigned char encryption_iv[IV_LENGTH];
+
+  srand(time(NULL));
+
+  for (int i = 0; i < IV_LENGTH; i++) {
+    encryption_iv[i] = (unsigned char)rand() % 256;
+  }
+
   EVP_CIPHER_CTX *enc_context = EVP_CIPHER_CTX_new();
-  aes_init_enc(enc_context);
+  aes_init_enc(enc_context, encryption_iv);
   
   unsigned char *ciphered_json = NULL;
 
@@ -145,7 +145,7 @@ unsigned char *encrypt_packet(json_t *json_input)
     (unsigned char*)malloc((len + IV_LENGTH) * sizeof(unsigned char));
 
   for (int i = 0; i < IV_LENGTH; i++) {
-    cipher_with_appended_iv[i] = ENCRYPTION_IV[i];
+    cipher_with_appended_iv[i] = encryption_iv[i];
   }
 
   memcpy(cipher_with_appended_iv + IV_LENGTH, ciphered_json, len);
