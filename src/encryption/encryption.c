@@ -68,7 +68,7 @@ int aes_init_enc(EVP_CIPHER_CTX *e_ctx)
 {
   srand(time(NULL));
 
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < IV_LENGTH; i++) {
     ENCRYPTION_IV[i] = (unsigned char)rand() % 256;
   }
 
