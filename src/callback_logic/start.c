@@ -17,11 +17,7 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
     free(br);
     goto internal_server_error;
   }
-  if (json_object_set_new(br->master_json, "data", br->data_json) != 0) {
-    free(br);
-    goto internal_server_error;
-  }
-
+  
   char *encrypt_buffer = NULL;
   encrypt_buffer = encrypt_packet(br->master_json);
 
