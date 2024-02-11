@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.27)
-project(alive-serv)
+
+project(
+  alive-serv
+  LANGUAGES C)
+
+find_package(Ulfius REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -9,14 +15,14 @@ set(CMAKE_C_FLAGS "-Wall -Wextra")
 set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
-add_executable(alive-serv 
+add_executable(${PROJECT_NAME} 
               src/main.c
               src/core/static_file_callback.c
               src/encryption/encryption.c
+              src/response_structs/base_response.c
               src/callback_logic/start.c
 )
 
-target_include_directories(alive-serv PUBLIC /usr/local/include /opt/homebrew/include)
-target_link_directories(alive-serv PUBLIC /usr/local/lib /opt/homebrew/lib)
-
-target_link_libraries(alive-serv ulfius jansson orcania crypto)
+target_link_libraries(${PROJECT_NAME} 
+                      Ulfius::Ulfius 
+                      OpenSSL::Crypto)

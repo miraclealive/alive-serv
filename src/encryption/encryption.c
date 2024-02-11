@@ -6,7 +6,7 @@
 
 #include "encryption.h"
 
-const unsigned char *ENCRYPTION_KEY = "3559b435f24b297a79c68b9709ef2125";
+const char *ENCRYPTION_KEY = "3559b435f24b297a79c68b9709ef2125";
 
 int encode_base64(unsigned const char* input, char** buffer, int input_size)
 { 
