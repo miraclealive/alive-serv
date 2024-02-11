@@ -6,9 +6,9 @@
 
 #include "encryption.h"
 
-const unsigned char *ENCRYPTION_KEY = "3559b435f24b297a79c68b9709ef2125";
-const unsigned char *ENCRYPTION_IV = "0000000000000000"; // FIXME: hardcoded, this should be random
 const int IV_LENGTH = 16;
+const unsigned char *ENCRYPTION_KEY = "3559b435f24b297a79c68b9709ef2125";
+unsigned char ENCRYPTION_IV[IV_LENGTH];
 
 int encode_base64(unsigned const char* input, char** buffer, int input_size)
 { 
@@ -66,6 +66,12 @@ int decode_base64(char* base64_input, unsigned char** buffer)
 
 int aes_init_enc(EVP_CIPHER_CTX *e_ctx)
 {
+  srand(time(NULL));
+
+  for (int i = 0; i < 16; i++) {
+    ENCRYPTION_IV[i] = (unsigned char)rand() % 256;
+  }
+
   EVP_CIPHER_CTX_init(e_ctx);
   EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, ENCRYPTION_KEY, ENCRYPTION_IV);
   return 0;
@@ -138,7 +144,10 @@ unsigned char *encrypt_packet(json_t *json_input)
   unsigned char* cipher_with_appended_iv = 
     (unsigned char*)malloc((len + IV_LENGTH) * sizeof(unsigned char));
 
-  memset(cipher_with_appended_iv, '0', IV_LENGTH); // FIXME: hardcoded IV
+  for (int i = 0; i < IV_LENGTH; i++) {
+    cipher_with_appended_iv[i] = ENCRYPTION_IV[i];
+  }
+
   memcpy(cipher_with_appended_iv + IV_LENGTH, ciphered_json, len);
 
   free(ciphered_json);
