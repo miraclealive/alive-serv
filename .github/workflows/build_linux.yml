@@ -17,7 +17,15 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Dependencies
-      run: sudo apt-get install -y libulfius-dev libssl-dev
+      run: sudo apt-get install -y libmicrohttpd-dev libjansson-dev libcurl4-gnutls-dev libgnutls28-dev libgcrypt20-dev zlib1g-dev
+
+    - name: Build and Install Ulfius
+      run: |
+        git clone https://github.com/babelouest/ulfius.git
+        cd ulfius
+        mkdir build && cd build
+        cmake ..
+        make && sudo make install
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
