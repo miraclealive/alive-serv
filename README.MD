@@ -20,7 +20,6 @@ In-depth building instructions are to come later. However, it should be fairly s
 * [ulfius](https://github.com/babelouest/ulfius)
 * [jansson](https://github.com/akheron/jansson)
 * [orcania](https://github.com/babelouest/orcania)
-* [yder](https://github.com/babelouest/yder)
 * [OpenSSL](https://github.com/openssl/openssl)
 
 ## License

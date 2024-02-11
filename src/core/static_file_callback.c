@@ -83,14 +83,13 @@
 #include <orcania.h>
 #include <string.h>
 #include <ulfius.h>
-#include <yder.h>
 
 #include "static_file_callback.h"
 
 /**
  * Return the filename extension
  */
-const char * get_filename_ext(const char *path) {
+const char *get_filename_ext(const char *path) {
     const char *dot = strrchr(path, '.');
     if(!dot || dot == path) return "*";
     if (strchr(dot, '?') != NULL) {
@@ -123,7 +122,7 @@ static void callback_static_file_stream_free(void * cls) {
 /**
  * static file callback endpoint
  */
-int callback_static_file (const struct _u_request * request, struct _u_response * response, void * user_data) {
+int callback_static_file(const struct _u_request * request, struct _u_response * response, void * user_data) {
   size_t length;
   FILE * f;
   char * file_requested, * file_path, * url_dup_save, * real_path = NULL;
@@ -166,13 +165,13 @@ int callback_static_file (const struct _u_request * request, struct _u_response 
         content_type = u_map_get_case(((struct _static_file_config *)user_data)->mime_types, get_filename_ext(file_requested));
         if (content_type == NULL) {
           content_type = u_map_get(((struct _static_file_config *)user_data)->mime_types, "*");
-          y_log_message(Y_LOG_LEVEL_WARNING, "Static File Server - Unknown mime type for extension %s", get_filename_ext(file_requested));
+          printf("Static File Server - Unknown mime type for extension %s\n", get_filename_ext(file_requested));
         }
         u_map_put(response->map_header, "Content-Type", content_type);
         u_map_copy_into(response->map_header, ((struct _static_file_config *)user_data)->map_header);
         
         if (ulfius_set_stream_response(response, 200, callback_static_file_stream, callback_static_file_stream_free, length, STATIC_FILE_CHUNK, f) != U_OK) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "callback_static_file - Error ulfius_set_stream_response");
+          printf("callback_static_file - Error ulfius_set_stream_response");
         }
       }
     } else {
@@ -189,7 +188,7 @@ int callback_static_file (const struct _u_request * request, struct _u_response 
     free(real_path); // realpath uses malloc
     return U_CALLBACK_CONTINUE;
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "Static File Server - Error, user_data is NULL or inconsistent");
+    printf("Static File Server - Error, user_data is NULL or inconsistent\n");
     return U_CALLBACK_ERROR;
   }
 }

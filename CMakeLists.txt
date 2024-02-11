@@ -19,4 +19,4 @@ add_executable(alive-serv
 target_include_directories(alive-serv PUBLIC /usr/local/include /opt/homebrew/include)
 target_link_directories(alive-serv PUBLIC /usr/local/lib /opt/homebrew/lib)
 
-target_link_libraries(alive-serv ulfius jansson orcania yder crypto)
+target_link_libraries(alive-serv ulfius jansson orcania crypto)
