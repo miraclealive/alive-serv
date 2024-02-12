@@ -118,7 +118,7 @@ char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *cipher_text, int *len)
   return plain_text;
 }
 
-unsigned char *encrypt_packet(json_t *json_input)
+char *encrypt_packet(json_t *json_input)
 {
   unsigned char encryption_iv[IV_LENGTH];
 
