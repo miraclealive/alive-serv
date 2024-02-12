@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Ramen2X
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <string.h>
 #include <ulfius.h>
 
@@ -14,7 +19,11 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   }
   
   if (json_object_set_new(br->data_json, "asset_hash", json_string("a582d735ccff596433e66ea520dcc260")) != 0) {
+    json_delete(br->master_json);
+    json_delete(br->data_json);
+
     free(br);
+
     goto internal_server_error;
   }
   
@@ -25,8 +34,8 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   
   free(encrypt_buffer);
 
-  json_decref(br->master_json);
-  json_decref(br->data_json);
+  json_delete(br->master_json);
+  json_delete(br->data_json);
 
   free(br);
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Ramen2X
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <jansson.h>
 #include <ulfius.h>
 

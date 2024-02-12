@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Ramen2X
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <string.h>
 #include <jansson.h>
 #include <openssl/bio.h>

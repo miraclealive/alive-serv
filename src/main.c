@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Ramen2X
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <stdio.h>
 #include <ulfius.h>
 #include <jansson.h>
@@ -23,7 +28,6 @@ int main()
   config.files_path = "static";
   config.redirect_on_404 = NULL;
   config.mime_types = NULL;
-  u_map_put(config.mime_types, ".json", "application/octet-stream");
 
   // Endpoint list declaration
 
