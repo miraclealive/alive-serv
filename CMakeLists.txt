@@ -4,7 +4,6 @@ project(
   alive-serv
   LANGUAGES C)
 
-find_package(Ulfius REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -20,6 +19,11 @@ add_executable(${PROJECT_NAME}
               src/response_structs/base_response.c
               src/callback_logic/start.c)
 
-target_link_libraries(${PROJECT_NAME} 
-                      Ulfius::Ulfius 
+target_link_directories(${PROJECT_NAME} PUBLIC 
+                        /usr/local/lib)
+
+target_link_libraries(${PROJECT_NAME}
+                      ulfius
+                      jansson
+                      orcania
                       OpenSSL::Crypto)
