@@ -35,8 +35,6 @@ jobs:
       run: |
         git clone https://github.com/babelouest/ulfius.git
         cd ulfius
-        mkdir build && cd build
-        cmake ..
         make && sudo make install
 
     - name: Configure CMake
