@@ -19,8 +19,14 @@ add_executable(${PROJECT_NAME}
               src/response_structs/base_response.c
               src/callback_logic/start.c)
 
-target_link_directories(${PROJECT_NAME} PUBLIC 
-                        /usr/local/lib)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  target_link_directories(${PROJECT_NAME}
+                        PUBLIC /opt/homebrew/lib)
+endif()
+
+target_link_directories(${PROJECT_NAME}
+                        PUBLIC /usr/local/lib)
 
 target_link_libraries(${PROJECT_NAME}
                       ulfius
