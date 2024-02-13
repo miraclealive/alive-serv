@@ -13,3 +13,4 @@ struct base_response
 };
 
 struct base_response *base_response_new(struct _u_response *response);
+void return_code(struct _u_response *response, int code);

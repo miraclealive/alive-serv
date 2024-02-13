@@ -15,7 +15,8 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   struct base_response *br = base_response_new(response);
 
   if (br == NULL) {
-    goto internal_server_error;
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
   }
   
   if (json_object_set_new(br->data_json, "asset_hash", json_string("a582d735ccff596433e66ea520dcc260")) != 0) {
@@ -24,7 +25,8 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
 
     free(br);
 
-    goto internal_server_error;
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
   }
   
   char *encrypt_buffer = NULL;
@@ -40,8 +42,4 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   free(br);
 
   return U_CALLBACK_CONTINUE;
-
-  internal_server_error:
-    ulfius_set_string_body_response(response, 500, "Internal Server Error");
-    return U_CALLBACK_CONTINUE;
 }
