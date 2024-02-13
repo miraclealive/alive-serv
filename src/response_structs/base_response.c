@@ -32,7 +32,7 @@ struct base_response *base_response_new(struct _u_response *response)
 void return_code(struct _u_response *response, int code)
 {
   char *code_str = malloc(sizeof(char) * 10);
-  sprintf(code_str, "%d", code);
+  sprintf(code_str, "Error %d", code);
   ulfius_set_string_body_response(response, code, code_str);
   free(code_str);
 }
