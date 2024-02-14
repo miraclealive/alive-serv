@@ -63,7 +63,7 @@ jobs:
         # queries: security-extended,security-and-quality
 
     - name: Install Dependencies
-      run: sudo apt-get install -y libulfius-dev liborcania-dev libssl-dev
+      run: sudo apt-get install -y libulfius-dev liborcania-dev libssl-dev libmariadb3 libmariadb-dev
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)

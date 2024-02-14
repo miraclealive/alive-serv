@@ -8,18 +8,28 @@
 #include <jansson.h>
 
 #include "core/static_file_callback.h"
+#include "core/database.h"
 
 #include "callback_logic/start.h"
 
-#define PORT 8080 // FIXME: hardcoded
-
-int main() 
+int main(int argc, char *argv[])
 {
+  if (argc < 7) {
+    printf("Usage: %s <server_port> <db_host> <db_port> <db_username> <db_password> <db_name>\n", argv[0]);
+    return 1;
+  }
+
+  db_config.db_host = argv[2];
+  db_config.db_port = atoi(argv[3]);
+  db_config.db_username = argv[4];
+  db_config.db_password = argv[5];
+  db_config.db_name = argv[6];
+
   struct _u_instance instance;
   struct _static_file_config config;
 
   // Initialize instance with the port number
-  if (ulfius_init_instance(&instance, PORT, NULL, NULL) != U_OK) {
+  if (ulfius_init_instance(&instance, atoi(argv[1]), NULL, NULL) != U_OK) {
     fprintf(stderr, "Error with ulfius_init_instance, aborting\n");
     return 1;
   }
@@ -38,6 +48,17 @@ int main()
   // Add callbacks to game endpoints
   ulfius_add_endpoint_by_val(&instance, "POST", "/api/start/assetHash",
                              NULL, 0, &callback_assethash, NULL);
+  // Initialize the database
+  MYSQL *conn;
+  if (create_connection(&conn) != 0) {
+    printf("Error creating connection to database\n");
+    return 1;
+  }
+
+  if (init_database(&conn) != 0) {
+    printf("Error initalizing database\n");
+    return 1;
+  }
 
   // Start the framework
   if (ulfius_start_framework(&instance) == U_OK) {
