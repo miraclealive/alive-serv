@@ -19,11 +19,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  db_config.db_host = argv[2];
-  db_config.db_port = atoi(argv[3]);
-  db_config.db_username = argv[4];
-  db_config.db_password = argv[5];
-  db_config.db_name = argv[6];
+  set_db_config(argv[2], atoi(argv[3]), argv[4], argv[5], argv[6]);
 
   struct _u_instance instance;
   struct _static_file_config config;

@@ -16,7 +16,7 @@ struct database_config {
   int db_port;
 };
 
-struct database_config db_config;
+void set_db_config(char *host, int port, char *username, char *password, char *db_name);
 
 int create_connection(MYSQL **conn);
 int init_database(MYSQL **conn);

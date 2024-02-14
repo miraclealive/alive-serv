@@ -8,6 +8,17 @@
 
 #include "database.h"
 
+struct database_config db_config;
+
+void set_db_config(char *host, int port, char *username, char *password, char *db_name)
+{
+  db_config.db_host = host;
+  db_config.db_port = port;
+  db_config.db_username = username;
+  db_config.db_password = password;
+  db_config.db_name = db_name;
+}
+
 int create_connection(MYSQL **conn)
 {
   (*conn) = mysql_init(NULL);
