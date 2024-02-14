@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef ENCRYPTION_H
+#define ENCRYPTION_H
+
 #include <string.h>
 #include <jansson.h>
 #include <openssl/bio.h>
@@ -21,3 +24,4 @@ char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *cipher_text, int *len);
 char *encrypt_packet(json_t *json_input);
 void *decrypt_packet(char *base64_input, json_t **json_output);
 
+#endif // ENCRYPTION_H

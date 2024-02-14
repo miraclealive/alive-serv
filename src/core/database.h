@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#ifndef DATABASE_H
+#define DATABASE_H
+
 #include <mysql.h>
 
 struct database_config {
@@ -17,3 +20,5 @@ struct database_config db_config;
 
 int create_connection(MYSQL **conn);
 int init_database(MYSQL **conn);
+
+#endif // DATABASE_H
