@@ -34,13 +34,15 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 target_link_directories(${PROJECT_NAME}
-                        PUBLIC /usr/local/lib /usr/local/lib/mariadb)
+                        PUBLIC /usr/local/lib 
+                        /usr/local/lib/mariadb
+                        /usr/lib)
 
 target_include_directories(${PROJECT_NAME}
                         PUBLIC /usr/local/include
-                        /usr/local/include/mysql
+                        /usr/local/include/mariadb
                         /usr/include
-                        /usr/include/mysql)
+                        /usr/include/mariadb)
 
 target_link_libraries(${PROJECT_NAME}
                       ulfius
