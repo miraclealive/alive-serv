@@ -14,6 +14,7 @@ struct base_response *base_response_new(struct _u_response *response)
   if (json_object_set_new(master_json, "code", json_integer(0)) != 0 
     || json_object_set_new(master_json, "server_time", json_integer((unsigned long)time(NULL))) != 0 
     || json_object_set_new(master_json, "data", data_json) != 0) {
+
     json_delete(master_json);
     json_delete(data_json);
 

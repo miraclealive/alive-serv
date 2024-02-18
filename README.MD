@@ -4,12 +4,13 @@ This is a **heavily WIP** game server implementation for SIF2 MIRACLE LIVE!, who
 
 ## Status
 
-Two endpoints are currently implemented and functional:
+Three endpoints are currently implemented and functional:
 
 * `/maintenance/maintenance.json`: static file that returns the maintenance status of the server
 * `/api/start/assetHash`: returns the current asset version hash to the client
+* `/api/dummy/login`: returns the user_id resolved from client-provided info and initiates the login process
 
-These two endpoints currently enable the client to get to the title screen.
+These three endpoints currently enable the client to get to the title screen.
 
 Although it is currently untested, this server should work with the Japanese client as well.
 
@@ -21,6 +22,7 @@ In-depth building instructions are to come later. However, it should be fairly s
 * [jansson](https://github.com/akheron/jansson)
 * [orcania](https://github.com/babelouest/orcania)
 * [OpenSSL](https://github.com/openssl/openssl)
+* [MariaDB](https://github.com/mariadb-corporation/mariadb-connector-c)
 
 ## License
 

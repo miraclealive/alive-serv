@@ -11,6 +11,7 @@
 #include "core/database.h"
 
 #include "callback_logic/start.h"
+#include "callback_logic/login.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,6 +45,9 @@ int main(int argc, char *argv[])
   // Add callbacks to game endpoints
   ulfius_add_endpoint_by_val(&instance, "POST", "/api/start/assetHash",
                              NULL, 0, &callback_assethash, NULL);
+  ulfius_add_endpoint_by_val(&instance, "POST", "/api/dummy/login",
+                             NULL, 0, &callback_login, NULL);
+
   // Initialize the database
   MYSQL *conn;
   if (create_connection(&conn) != 0) {

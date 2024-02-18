@@ -167,12 +167,13 @@ char *encrypt_packet(json_t *json_input)
 
 void *decrypt_packet(char *base64_input, json_t **json_output) 
 {
-  unsigned char *base64_buffer = NULL;
+  char *base64_buffer = NULL;
   int len = decode_base64(base64_input, &base64_buffer) - IV_LENGTH;
 
   unsigned char *decryption_iv = (unsigned char*)malloc(IV_LENGTH * sizeof(unsigned char));
   memcpy(decryption_iv, base64_buffer, IV_LENGTH);
-  memcpy(base64_buffer, base64_buffer + IV_LENGTH, len);
+
+  memmove(base64_buffer, base64_buffer + IV_LENGTH, len);
 
   EVP_CIPHER_CTX *dec_context = EVP_CIPHER_CTX_new();
   aes_init_dec(dec_context, decryption_iv);
