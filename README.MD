@@ -1,3 +1,5 @@
+## [Help translate this README into your language!](/pulls)
+
 # alive-serv 
   
 This is a **heavily WIP** game server implementation for SIF2 MIRACLE LIVE!, whose last remaining server will close down on May 31st, 2024. It is written in C, and is the product of reverse engineering the server protocol of the global version.
