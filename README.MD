@@ -1,4 +1,4 @@
-## [Help translate this README into your language!](/pulls)
+## [Help translate this README into your language!](https://github.com/miraclealive/alive-serv/pulls)
 
 # alive-serv 
   
