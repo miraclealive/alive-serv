@@ -26,6 +26,16 @@ In-depth building instructions are to come later. However, it should be fairly s
 * [OpenSSL](https://github.com/openssl/openssl)
 * [MariaDB](https://github.com/mariadb-corporation/mariadb-connector-c)
 
+## Usage
+
+Once built, the server can be properly invoked by providing the following command line arguments in order:
+
+`<server_port> <db_host> <db_port> <db_username> <db_password> <db_name>`
+
+Currently, the server will automatically set up the necessary tables in your specified MariaDB database if they don't already exist. As the database specification is rapdily changing, you will likely need to drop all tables regularly to continue using the server properly.
+
+The server can be connected to using a custom proxy on an unmodified game client. Alternatively, you can apply patches to the client itself; however, this is something I have yet to explore.
+
 ## License
 
 This code is licensed under the MIT license. Please see [LICENSE](LICENSE) for more information.
