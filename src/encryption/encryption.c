@@ -179,6 +179,9 @@ void *decrypt_packet(char *base64_input, json_t **json_output)
   aes_init_dec(dec_context, decryption_iv);
 
   char *decrypted_json_string = aes_decrypt(dec_context, base64_buffer, &len);
+
+  decrypted_json_string[len] = 0;
+
   EVP_CIPHER_CTX_free(dec_context);
 
   free(decryption_iv);
