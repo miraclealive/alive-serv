@@ -42,7 +42,7 @@ int create_connection(MYSQL **conn)
 
 int init_database(MYSQL **conn)
 {
-  if (mysql_query((*conn), "CREATE TABLE IF NOT EXISTS alive_players (uuid VARCHAR(36) NOT NULL, twxuid VARCHAR(72) NOT NULL, user_id BIGINT NOT NULL, user_name VARCHAR(10) NOT NULL, token VARCHAR(40) NOT NULL)") != 0) {
+  if (mysql_query((*conn), "CREATE TABLE IF NOT EXISTS alive_players (uuid VARCHAR(36) NOT NULL, twxuid VARCHAR(72) NOT NULL, token VARCHAR(40) NOT NULL, user_id BIGINT NOT NULL, name VARCHAR(10) NOT NULL, comment VARCHAR(96) NOT NULL, exp MEDIUMINT NOT NULL, main_deck_slot TINYINT NOT NULL, favorite_master_card_id MEDIUMINT NOT NULL, favorite_card_evolve TINYINT NOT NULL, guest_smile_master_card MEDIUMINT NOT NULL, guest_cool_master_card MEDIUMINT NOT NULL, guest_pure_master_card MEDIUMINT NOT NULL, friend_request_disabled TINYINT NOT NULL, master_title_ids TINYTEXT NOT NULL, profile_settings TINYTEXT NOT NULL, sif_user_id BIGINT NOT NULL, ss_user_id BIGINT NOT NULL, birthday TINYTEXT NOT NULL, last_login_time BIGINT NOT NULL)") != 0) {
     printf("MariaDB Error: %s\n", mysql_error((*conn)));
     mysql_close((*conn));
     return 1;
