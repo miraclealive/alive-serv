@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
                              NULL, 0, &callback_assethash, NULL);
   ulfius_add_endpoint_by_val(&instance, "POST", "/api/dummy/login",
                              NULL, 0, &callback_login, NULL);
+  ulfius_add_endpoint_by_val(&instance, "POST", "/api/start",
+                             NULL, 0, &callback_start, NULL);
+
 
   // Initialize the database
   MYSQL *conn;
