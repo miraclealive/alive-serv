@@ -6,6 +6,6 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
-int callback_login(const struct _u_request *request, struct _u_response *response);
+int callback_login(const struct _u_request *request, struct _u_response *response, void *user_data);
 
 #endif // LOGIN_H

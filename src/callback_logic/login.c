@@ -10,7 +10,7 @@
 #include "../core/database.h"
 #include "../response_structs/base_response.h"
 
-int callback_login(const struct _u_request *request, struct _u_response *response)
+int callback_login(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
   char request_body[request->binary_body_length + 1];
   strncpy(request_body, request->binary_body, request->binary_body_length);       

@@ -11,7 +11,7 @@
 #include "../core/database.h"
 #include "../response_structs/base_response.h"
 
-int callback_assethash(const struct _u_request *request, struct _u_response *response) 
+int callback_assethash(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
   struct base_response *br = base_response_new(response);
 
@@ -45,7 +45,7 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   return U_CALLBACK_CONTINUE;
 }
 
-int callback_start(const struct _u_request *request, struct _u_response *response)
+int callback_start(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
   MYSQL *conn;
   if (create_connection(&conn) != 0) {
@@ -77,7 +77,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   MYSQL_RES *result = mysql_store_result(conn);
   MYSQL_ROW row = mysql_fetch_row(result);
-  int length = mysql_fetch_lengths(result);
+  const int length = mysql_fetch_lengths(result)[0];
 
   char *token = malloc(length + 1);
   sprintf(token, "%s", row[0]);
