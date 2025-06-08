@@ -22,7 +22,9 @@ add_executable(${PROJECT_NAME}
               src/encryption/encryption.c
               src/response_structs/base_response.c
               src/callback_logic/start.c
-              src/callback_logic/login.c)
+              src/callback_logic/login.c
+              src/callback_logic/debug.c
+)
 
 # This is a bit of a mess because I don't know how to write find<lib>.cmake files right now
 # Any help on cleaning this up would be greatly appreciated!!

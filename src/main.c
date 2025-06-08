@@ -10,6 +10,7 @@
 #include "core/static_file_callback.h"
 #include "core/database.h"
 
+#include "callback_logic/debug.h"
 #include "callback_logic/start.h"
 #include "callback_logic/login.h"
 
@@ -49,6 +50,8 @@ int main(int argc, char *argv[])
                              NULL, 0, &callback_login, NULL);
   ulfius_add_endpoint_by_val(&instance, "POST", "/api/start",
                              NULL, 0, &callback_start, NULL);
+  ulfius_add_endpoint_by_val(&instance, "POST", "/api/debug/error",
+                         NULL, 0, &callback_error, NULL);
 
 
   // Initialize the database
