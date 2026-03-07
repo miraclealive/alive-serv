@@ -2,6 +2,7 @@
 
 <img src="res/banner.png" alt="banner" width="400">
 <sup>design by <a href="https://github.com/jakedel">@jakedel</a></sup>
+
 # alive-serv 
   
 This is a **heavily WIP** game server implementation for SIF2 MIRACLE LIVE!, whose last remaining server shut down on May 31st, 2024. It is written in C, and is the product of reverse engineering the server protocol of the global version.
@@ -36,13 +37,15 @@ Once built, the server can be properly invoked by providing the following comman
 
 `<server_port> <db_host> <db_port> <db_username> <db_password> <db_name>`
 
-Currently, the server will automatically set up the necessary tables in your specified MariaDB database if they don't already exist. As the database specification is rapdily changing, you will likely need to drop all tables regularly to continue using the server properly.
+Currently, the server will automatically set up the necessary tables in your specified MariaDB database if they don't already exist. As the database specification is rapidly changing, you will likely need to drop all tables regularly to continue using the server properly.
 
 The server can be connected to using a custom proxy on an unmodified game client. Alternatively, you can apply patches to the client itself; however, this is something I have yet to explore.
 
 ## Why C?
 
-You may be wondering why I chose to write this server in pure C when there may be objectively better options for RESTful game servers such as this, like ASP.NET or FastAPI. There's absolutely nothing wrong with using these. The short answer is that I wanted to write an ambitious project in pure C as a fun challenge. I have written game servers in the past using frameworks in higher-level languages, so I thought I would go lower-level for this project to make it more interesting to work on.
+You may be wondering why I chose to write this server in pure C when there may be objectively better options for RESTful game servers such as this, like ASP.NET or FastAPI. There's absolutely nothing wrong with using these. The main reason is that I wanted to write an ambitious project in pure C as a fun challenge. I have written game servers in the past using frameworks in higher-level languages, so I thought I would go lower-level for this project to make it more interesting to work on.
+
+Additionally, writing the server in C makes the codebase extremely portable and versatile. The server could potentially be ported to run on just about anything.
 
 ## License
 
