@@ -38,8 +38,8 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
 
   free(request_body);
 
-  MYSQL *conn;
-  if (create_connection(&conn) != 0) {
+  MYSQL *conn = db_get_connection();
+  if (conn == NULL) {
     json_decref(request_json);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -49,7 +49,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
   json_t *twxuid_json = json_object_get(request_json, "twxuid");
 
   if (!json_is_string(uuid_json) || !json_is_string(twxuid_json)) {
-    mysql_close(conn);
+    db_free_connection(conn);
     json_decref(request_json);
     return_code(response, 400);
     return U_CALLBACK_CONTINUE;
@@ -67,7 +67,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
   if (uuid_escaped == NULL || twxuid_escaped == NULL) {
     free(uuid_escaped);
     free(twxuid_escaped);
-    mysql_close(conn);
+    db_free_connection(conn);
     json_decref(request_json);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -83,7 +83,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
   if (sql_query == NULL) {
     free(uuid_escaped);
     free(twxuid_escaped);
-    mysql_close(conn);
+    db_free_connection(conn);
     json_decref(request_json);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -96,7 +96,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
 
   if (mysql_query(conn, sql_query) != 0) {
     printf("MariaDB Error: %s\n", mysql_error(conn));
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     json_decref(request_json);
     return_code(response, 500);
@@ -107,7 +107,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
 
   MYSQL_RES *result = mysql_store_result(conn);
   if (result == NULL) {
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -116,7 +116,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
   MYSQL_ROW row = mysql_fetch_row(result);
   if (row == NULL || row[0] == NULL) {
     mysql_free_result(result);
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 404);
     return U_CALLBACK_CONTINUE;
@@ -126,7 +126,7 @@ int callback_login(const struct _u_request *request, struct _u_response *respons
 
   mysql_free_result(result);
   free(sql_query);
-  mysql_close(conn);
+  db_free_connection(conn);
 
   struct base_response *br = base_response_new(response);
 

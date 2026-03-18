@@ -46,15 +46,15 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
 
 int callback_start(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
-  MYSQL *conn;
-  if (create_connection(&conn) != 0) {
+  MYSQL *conn = db_get_connection();
+  if (conn == NULL) {
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
 
   const char *user_id = u_map_get(request->map_header, "aoharu-user-id");
   if (user_id == NULL) {
-    mysql_close(conn);
+    db_free_connection(conn);
     return_code(response, 400);
     return U_CALLBACK_CONTINUE;
   }
@@ -63,7 +63,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   char *user_id_escaped = malloc(user_id_len * 2 + 1);
   if (user_id_escaped == NULL) {
-    mysql_close(conn);
+    db_free_connection(conn);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
@@ -76,7 +76,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   char *sql_query = malloc(sql_query_len);
   if (sql_query == NULL) {
     free(user_id_escaped);
-    mysql_close(conn);
+    db_free_connection(conn);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
@@ -87,7 +87,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   if (mysql_query(conn, sql_query) != 0) {
     printf("MariaDB Error: %s\n", mysql_error(conn));
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -95,7 +95,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   MYSQL_RES *result = mysql_store_result(conn);
   if (result == NULL) {
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -104,7 +104,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   MYSQL_ROW row = mysql_fetch_row(result);
   if (row == NULL || row[0] == NULL) {
     mysql_free_result(result);
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 404);
     return U_CALLBACK_CONTINUE;
@@ -113,7 +113,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   unsigned long *lengths = mysql_fetch_lengths(result);
   if (lengths == NULL) {
     mysql_free_result(result);
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -123,7 +123,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   char *token = malloc(token_length + 1);
   if (token == NULL) {
     mysql_free_result(result);
-    mysql_close(conn);
+    db_free_connection(conn);
     free(sql_query);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
@@ -134,7 +134,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   mysql_free_result(result);
   free(sql_query);
-  mysql_close(conn);
+  db_free_connection(conn);
 
   struct base_response *br = base_response_new(response);
   if (br == NULL) {

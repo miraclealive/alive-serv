@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <mysql.h>
 #include <ulfius.h>
 #include <jansson.h>
 
@@ -18,14 +19,12 @@
 
 int main(int argc, char *argv[])
 {
-  srand(time(NULL));
-
   if (argc < 7) {
     printf("Usage: %s <server_port> <db_host> <db_port> <db_username> <db_password> <db_name>\n", argv[0]);
     return 1;
   }
 
-  set_db_config(argv[2], atoi(argv[3]), argv[4], argv[5], argv[6]);
+  db_set_config(argv[2], atoi(argv[3]), argv[4], argv[5], argv[6]);
 
   struct _u_instance instance;
   struct _static_file_config config;
@@ -58,17 +57,29 @@ int main(int argc, char *argv[])
                          NULL, 0, &callback_error, NULL);
 
 
-  // Initialize the database
-  MYSQL *conn;
-  if (create_connection(&conn) != 0) {
+  MYSQL *init_conn;
+  if (db_create_connection(&init_conn) != 0) {
     printf("Error creating connection to database\n");
+    ulfius_clean_instance(&instance);
     return 1;
   }
 
-  if (init_database(&conn) != 0) {
-    printf("Error initalizing database\n");
+  if (db_init(&init_conn) != 0) {
+    printf("Error initializing database\n");
+    mysql_close(init_conn);
+    ulfius_clean_instance(&instance);
     return 1;
   }
+  mysql_close(init_conn);
+
+  // Initialize connection pool
+  if (db_init_pool() != 0) {
+    printf("Error initializing connection pool\n");
+    ulfius_clean_instance(&instance);
+    return 1;
+  }
+  
+  srand(time(NULL));
 
   // Start the framework
   if (ulfius_start_framework(&instance) == U_OK) {
@@ -82,6 +93,7 @@ int main(int argc, char *argv[])
   printf("Ending server\n");
 
   ulfius_stop_framework(&instance);
+  db_destroy_pool();
   ulfius_clean_instance(&instance);
 
   return 0;
