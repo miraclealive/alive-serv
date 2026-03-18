@@ -4,6 +4,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <ulfius.h>
 #include <jansson.h>
 
@@ -16,6 +18,8 @@
 
 int main(int argc, char *argv[])
 {
+  srand(time(NULL));
+
   if (argc < 7) {
     printf("Usage: %s <server_port> <db_host> <db_port> <db_username> <db_password> <db_name>\n", argv[0]);
     return 1;

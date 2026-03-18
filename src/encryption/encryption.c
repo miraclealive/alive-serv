@@ -176,7 +176,6 @@ char *encrypt_packet(json_t *json_input)
 {
   unsigned char encryption_iv[IV_LENGTH];
 
-  srand(time(NULL));
   for (int i = 0; i < IV_LENGTH; i++) {
     encryption_iv[i] = (unsigned char)rand() % 256;
   }
