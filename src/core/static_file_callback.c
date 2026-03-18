@@ -90,10 +90,16 @@
  * Return the filename extension
  */
 const char *get_filename_ext(const char *path) {
+    static char ext_buf[32];
     const char *dot = strrchr(path, '.');
     if(!dot || dot == path) return "*";
-    if (strchr(dot, '?') != NULL) {
-      *strchr(dot, '?') = '\0';
+    const char *query = strchr(dot, '?');
+    if (query != NULL) {
+      size_t len = query - dot;
+      if (len >= sizeof(ext_buf)) len = sizeof(ext_buf) - 1;
+      memcpy(ext_buf, dot, len);
+      ext_buf[len] = '\0';
+      return ext_buf;
     }
     return dot;
 }

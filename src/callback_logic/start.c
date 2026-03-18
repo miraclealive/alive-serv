@@ -19,27 +19,26 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
-  
-  if (json_object_set_new(br->data_json, "asset_hash", json_string("a582d735ccff596433e66ea520dcc260")) != 0) {
-    json_delete(br->master_json);
-    json_delete(br->data_json);
 
+  if (json_object_set_new(br->data_json, "asset_hash", json_string("dd7175e4bcdab476f38c33c7f34b5e4d")) != 0) {
+    json_decref(br->master_json);
     free(br);
-
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
-  
-  char *encrypt_buffer = NULL;
-  encrypt_buffer = encrypt_packet(br->master_json);
+
+  char *encrypt_buffer = encrypt_packet(br->master_json);
+  if (encrypt_buffer == NULL) {
+    json_decref(br->master_json);
+    free(br);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
 
   ulfius_set_string_body_response(response, 200, encrypt_buffer);
-  
+
   free(encrypt_buffer);
-
-  json_delete(br->master_json);
-  json_delete(br->data_json);
-
+  json_decref(br->master_json);
   free(br);
 
   return U_CALLBACK_CONTINUE;
@@ -54,15 +53,35 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   }
 
   const char *user_id = u_map_get(request->map_header, "aoharu-user-id");
+  if (user_id == NULL) {
+    mysql_close(conn);
+    return_code(response, 400);
+    return U_CALLBACK_CONTINUE;
+  }
 
-  char *sql_query = malloc(sizeof(char) * 1000);
-  char *sql_query_base = "SELECT token FROM alive_players WHERE user_id = \"%s\"";
+  size_t user_id_len = strlen(user_id);
 
-  char *user_id_escaped = malloc(strlen(user_id) * 2);
+  char *user_id_escaped = malloc(user_id_len * 2 + 1);
+  if (user_id_escaped == NULL) {
+    mysql_close(conn);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
 
-  mysql_escape_string(user_id_escaped, user_id, strlen(user_id));
+  mysql_real_escape_string(conn, user_id_escaped, user_id, user_id_len);
 
-  sprintf(sql_query, sql_query_base, user_id_escaped);
+  const char *sql_query_base = "SELECT token FROM alive_players WHERE user_id = \"%s\"";
+  size_t sql_query_len = strlen(sql_query_base) + strlen(user_id_escaped) + 1;
+
+  char *sql_query = malloc(sql_query_len);
+  if (sql_query == NULL) {
+    free(user_id_escaped);
+    mysql_close(conn);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
+
+  snprintf(sql_query, sql_query_len, sql_query_base, user_id_escaped);
 
   free(user_id_escaped);
 
@@ -70,54 +89,84 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     printf("MariaDB Error: %s\n", mysql_error(conn));
     mysql_close(conn);
     free(sql_query);
-
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
 
   MYSQL_RES *result = mysql_store_result(conn);
-  MYSQL_ROW row = mysql_fetch_row(result);
-  const int length = mysql_fetch_lengths(result)[0];
+  if (result == NULL) {
+    mysql_close(conn);
+    free(sql_query);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
 
-  char *token = malloc(length + 1);
-  sprintf(token, "%s", row[0]);
-  token[length] = '\0';
+  MYSQL_ROW row = mysql_fetch_row(result);
+  if (row == NULL || row[0] == NULL) {
+    mysql_free_result(result);
+    mysql_close(conn);
+    free(sql_query);
+    return_code(response, 404);
+    return U_CALLBACK_CONTINUE;
+  }
+
+  unsigned long *lengths = mysql_fetch_lengths(result);
+  if (lengths == NULL) {
+    mysql_free_result(result);
+    mysql_close(conn);
+    free(sql_query);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
+
+  size_t token_length = lengths[0];
+  char *token = malloc(token_length + 1);
+  if (token == NULL) {
+    mysql_free_result(result);
+    mysql_close(conn);
+    free(sql_query);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
+
+  memcpy(token, row[0], token_length);
+  token[token_length] = '\0';
 
   mysql_free_result(result);
   free(sql_query);
   mysql_close(conn);
 
   struct base_response *br = base_response_new(response);
-
   if (br == NULL) {
+    free(token);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
 
-  if (json_object_set_new(br->data_json, "asset_hash", json_string("a582d735ccff596433e66ea520dcc260")) != 0 || json_object_set_new(br->data_json, "token", json_string(token)) != 0) {
-    json_delete(br->master_json);
-    json_delete(br->data_json);
-
+  if (json_object_set_new(br->data_json, "asset_hash", json_string("dd7175e4bcdab476f38c33c7f34b5e4d")) != 0 ||
+      json_object_set_new(br->data_json, "token", json_string(token)) != 0) {
+    json_decref(br->master_json);
     free(token);
     free(br);
-
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
 
   free(token);
-  
-  char *encrypt_buffer = NULL;
-  encrypt_buffer = encrypt_packet(br->master_json);
+
+  char *encrypt_buffer = encrypt_packet(br->master_json);
+  if (encrypt_buffer == NULL) {
+    json_decref(br->master_json);
+    free(br);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
 
   ulfius_set_string_body_response(response, 200, encrypt_buffer);
-  
+
   free(encrypt_buffer);
-
-  json_delete(br->master_json);
-  json_delete(br->data_json);
-
+  json_decref(br->master_json);
   free(br);
- 
+
   return U_CALLBACK_CONTINUE;
 }

@@ -21,20 +21,20 @@ void set_db_config(char *host, int port, char *username, char *password, char *d
 
 int create_connection(MYSQL **conn)
 {
-  (*conn) = mysql_init(NULL);
+  *conn = mysql_init(NULL);
 
-  if ((*conn) == NULL) {
-    mysql_close((*conn));
-    printf("MariaDB Error: %s\n", mysql_error(*conn));
+  if (*conn == NULL) {
+    printf("MariaDB Error: mysql_init() failed\n");
     return 1;
   }
-  
-  if (mysql_real_connect((*conn), db_config.db_host, db_config.db_username,
+
+  if (mysql_real_connect(*conn, db_config.db_host, db_config.db_username,
                          db_config.db_password, db_config.db_name,
                          db_config.db_port, NULL, 0) == NULL) {
-    printf("MariaDB Error: %s\n", mysql_error((*conn)));
-    mysql_close((*conn));
-    return 1; 
+    printf("MariaDB Error: %s\n", mysql_error(*conn));
+    mysql_close(*conn);
+    *conn = NULL;
+    return 1;
   }
 
   return 0;
