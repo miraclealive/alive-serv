@@ -10,12 +10,12 @@
 
 #include "core/database.h"
 
-#include "callback_logic/debug.h"
-#include "callback_logic/start.h"
-#include "callback_logic/login.h"
+#include "game/debug.h"
+#include "game/start.h"
+#include "game/login.h"
 #include "encryption/encryption.h"
 
-int main(int argc, char *argv[])
+int main(const int argc, char *argv[])
 {
   if (argc < 7) {
     printf("Usage: %s <server_port> <db_host> <db_port> <db_username> <db_password> <db_name>\n", argv[0]);

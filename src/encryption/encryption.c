@@ -129,9 +129,9 @@ void aes_cleanup(void)
   }
 }
 
-int encode_base64(unsigned const char* input, char** buffer, int input_size)
+int encode_base64(unsigned const char* input, char** buffer, const int input_size)
 {
-  int encoded_size = ((input_size + 2) / 3) * 4;
+  const int encoded_size = ((input_size + 2) / 3) * 4;
   *buffer = malloc(encoded_size + 1);
   if (*buffer == NULL) {
     return -1;
@@ -142,27 +142,21 @@ int encode_base64(unsigned const char* input, char** buffer, int input_size)
   return 0;
 }
 
-int decode_base64(char* base64_input, unsigned char** buffer)
+static int decode_base64(const char *base64_input, const size_t len, unsigned char **buffer)
 {
-  int len = strlen(base64_input);
-  if (len == 0) {
-    return -1;
-  }
-
-  int decoded_size = (len / 4) * 3;
-  *buffer = (unsigned char*)malloc(decoded_size + 1);
+  const int decoded_size = (len / 4) * 3;
+  *buffer = (unsigned char *)malloc(decoded_size + 1);
   if (*buffer == NULL) {
     return -1;
   }
 
-  int actual_len = EVP_DecodeBlock(*buffer, (unsigned char*)base64_input, len);
+  int actual_len = EVP_DecodeBlock(*buffer, (const unsigned char *)base64_input, len);
   if (actual_len < 0) {
     free(*buffer);
     *buffer = NULL;
     return -1;
   }
 
-  // Subtract padding from return value
   if (len > 0 && base64_input[len - 1] == '=') actual_len--;
   if (len > 1 && base64_input[len - 2] == '=') actual_len--;
 
@@ -171,9 +165,9 @@ int decode_base64(char* base64_input, unsigned char** buffer)
   return actual_len;
 }
 
-char *encrypt_packet(json_t *json_input)
+char *encrypt_packet(const json_t *json_input)
 {
-  thread_cipher_ctx_t *ctx = get_thread_cipher_ctx();
+  const thread_cipher_ctx_t *ctx = get_thread_cipher_ctx();
   if (ctx == NULL) {
     return NULL;
   }
@@ -188,7 +182,7 @@ char *encrypt_packet(json_t *json_input)
     return NULL;
   }
 
-  int input_len = strlen(json_string);
+  const int input_len = strlen(json_string);
   int c_len = input_len + AES_BLOCK_SIZE, f_len = 0;
 
   unsigned char *output = malloc(IV_LENGTH + c_len);
@@ -219,7 +213,7 @@ char *encrypt_packet(json_t *json_input)
     return NULL;
   }
 
-  int total_len = IV_LENGTH + c_len + f_len;
+  const int total_len = IV_LENGTH + c_len + f_len;
 
   char *base64_buffer = NULL;
   if (encode_base64(output, &base64_buffer, total_len) != 0) {
@@ -232,15 +226,19 @@ char *encrypt_packet(json_t *json_input)
   return base64_buffer;
 }
 
-int decrypt_packet(char *base64_input, json_t **json_output)
+int decrypt_packet(const char *base64_input, const size_t input_len, json_t **json_output)
 {
-  thread_cipher_ctx_t *ctx = get_thread_cipher_ctx();
-  if (ctx == NULL) {
+  if (input_len == 0 || input_len > MAX_REQUEST_BODY_SIZE) {
     return -1;
   }
 
+  const thread_cipher_ctx_t *ctx = get_thread_cipher_ctx();
+  if (ctx == NULL) {
+    return -2;
+  }
+
   unsigned char *decoded = NULL;
-  int decoded_len = decode_base64(base64_input, &decoded);
+  const int decoded_len = decode_base64(base64_input, input_len, &decoded);
   if (decoded_len < 0 || decoded == NULL) {
     return -1;
   }
@@ -253,8 +251,8 @@ int decrypt_packet(char *base64_input, json_t **json_output)
   unsigned char iv[IV_LENGTH];
   memcpy(iv, decoded, IV_LENGTH);
 
-  unsigned char *ciphertext = decoded + IV_LENGTH;
-  int cipher_len = decoded_len - IV_LENGTH;
+  const unsigned char *ciphertext = decoded + IV_LENGTH;
+  const int cipher_len = decoded_len - IV_LENGTH;
 
   if (EVP_DecryptInit_ex(ctx->dec_ctx, NULL, NULL, NULL, iv) != 1) {
     free(decoded);
@@ -282,7 +280,7 @@ int decrypt_packet(char *base64_input, json_t **json_output)
 
   free(decoded);
 
-  int total_len = p_len + f_len;
+  const int total_len = p_len + f_len;
   plaintext[total_len] = '\0';
 
   *json_output = json_loads((char *)plaintext, 0, NULL);
@@ -293,5 +291,31 @@ int decrypt_packet(char *base64_input, json_t **json_output)
     return -1;
   }
 
+  return 0;
+}
+
+int generate_token(char *buf, const size_t len)
+{
+  if (len == 0) {
+    return -1;
+  }
+
+  unsigned char *rand_bytes = malloc((len + 1) / 2);
+  if (rand_bytes == NULL) {
+    return -1;
+  }
+
+  if (RAND_bytes(rand_bytes, (int)((len + 1) / 2)) != 1) {
+    free(rand_bytes);
+    return -1;
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    const int nibble = (i % 2 == 0) ? (rand_bytes[i / 2] >> 4) : (rand_bytes[i / 2] & 0x0F);
+    buf[i] = nibble < 10 ? '0' + nibble : 'a' + (nibble - 10);
+  }
+  buf[len] = '\0';
+
+  free(rand_bytes);
   return 0;
 }

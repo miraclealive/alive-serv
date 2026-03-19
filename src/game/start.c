@@ -9,13 +9,13 @@
 #include "start.h"
 #include "../encryption/encryption.h"
 #include "../core/database.h"
-#include "../response_structs/base_response.h"
+#include "../response/response.h"
 
 static const char *ASSET_HASH = "dd7175e4bcdab476f38c33c7f34b5e4d";
 
 int callback_assethash(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
-  struct base_response *br = base_response_new(response);
+  struct response *br = response_new(response);
 
   if (br == NULL) {
     return_code(response, 500);
@@ -23,27 +23,10 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
   }
 
   if (json_object_set_new(br->data_json, "asset_hash", json_string(ASSET_HASH)) != 0) {
-    json_decref(br->master_json);
-    free(br);
-    return_code(response, 500);
-    return U_CALLBACK_CONTINUE;
+    return response_error(response, br, 500);
   }
 
-  char *encrypt_buffer = encrypt_packet(br->master_json);
-  if (encrypt_buffer == NULL) {
-    json_decref(br->master_json);
-    free(br);
-    return_code(response, 500);
-    return U_CALLBACK_CONTINUE;
-  }
-
-  ulfius_set_string_body_response(response, 200, encrypt_buffer);
-
-  free(encrypt_buffer);
-  json_decref(br->master_json);
-  free(br);
-
-  return U_CALLBACK_CONTINUE;
+  return response_send(response, br);
 }
 
 int callback_start(const struct _u_request *request, struct _u_response *response, void *user_data)
@@ -61,19 +44,15 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     return U_CALLBACK_CONTINUE;
   }
 
-  size_t user_id_len = strlen(user_id);
-
-  char *user_id_escaped = malloc(user_id_len * 2 + 1);
+  char *user_id_escaped = db_escape_string(conn, user_id);
   if (user_id_escaped == NULL) {
     db_free_connection(conn);
     return_code(response, 500);
     return U_CALLBACK_CONTINUE;
   }
 
-  mysql_real_escape_string(conn, user_id_escaped, user_id, user_id_len);
-
   const char *sql_query_base = "SELECT token FROM alive_players WHERE user_id = \"%s\"";
-  size_t sql_query_len = strlen(sql_query_base) + strlen(user_id_escaped) + 1;
+  const size_t sql_query_len = strlen(sql_query_base) + strlen(user_id_escaped) + 1;
 
   char *sql_query = malloc(sql_query_len);
   if (sql_query == NULL) {
@@ -103,7 +82,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     return U_CALLBACK_CONTINUE;
   }
 
-  MYSQL_ROW row = mysql_fetch_row(result);
+  const MYSQL_ROW row = mysql_fetch_row(result);
   if (row == NULL || row[0] == NULL) {
     mysql_free_result(result);
     db_free_connection(conn);
@@ -112,7 +91,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     return U_CALLBACK_CONTINUE;
   }
 
-  unsigned long *lengths = mysql_fetch_lengths(result);
+  const unsigned long *lengths = mysql_fetch_lengths(result);
   if (lengths == NULL) {
     mysql_free_result(result);
     db_free_connection(conn);
@@ -121,7 +100,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     return U_CALLBACK_CONTINUE;
   }
 
-  size_t token_length = lengths[0];
+  const size_t token_length = lengths[0];
   char *token = malloc(token_length + 1);
   if (token == NULL) {
     mysql_free_result(result);
@@ -138,7 +117,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
   free(sql_query);
   db_free_connection(conn);
 
-  struct base_response *br = base_response_new(response);
+  struct response *br = response_new(response);
   if (br == NULL) {
     free(token);
     return_code(response, 500);
@@ -147,28 +126,11 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
 
   if (json_object_set_new(br->data_json, "asset_hash", json_string(ASSET_HASH)) != 0 ||
       json_object_set_new(br->data_json, "token", json_string(token)) != 0) {
-    json_decref(br->master_json);
     free(token);
-    free(br);
-    return_code(response, 500);
-    return U_CALLBACK_CONTINUE;
+    return response_error(response, br, 500);
   }
 
   free(token);
 
-  char *encrypt_buffer = encrypt_packet(br->master_json);
-  if (encrypt_buffer == NULL) {
-    json_decref(br->master_json);
-    free(br);
-    return_code(response, 500);
-    return U_CALLBACK_CONTINUE;
-  }
-
-  ulfius_set_string_body_response(response, 200, encrypt_buffer);
-
-  free(encrypt_buffer);
-  json_decref(br->master_json);
-  free(br);
-
-  return U_CALLBACK_CONTINUE;
+  return response_send(response, br);
 }

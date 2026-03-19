@@ -5,11 +5,12 @@
 
 #include <stdio.h>
 
-#include "base_response.h"
+#include "response.h"
+#include "../encryption/encryption.h"
 
-struct base_response *base_response_new(struct _u_response *response)
+struct response *response_new(struct _u_response *response)
 {
-  struct base_response *br = malloc(sizeof(struct base_response));
+  struct response *br = malloc(sizeof(struct response));
   if (br == NULL) {
     return NULL;
   }
@@ -50,9 +51,36 @@ struct base_response *base_response_new(struct _u_response *response)
   return br;
 }
 
-void return_code(struct _u_response *response, int code)
+void return_code(struct _u_response *response, const int code)
 {
   char code_str[16];
   snprintf(code_str, sizeof(code_str), "Error %d", code);
   ulfius_set_string_body_response(response, code, code_str);
+}
+
+int response_send(struct _u_response *response, struct response *br)
+{
+  char *encrypt_buffer = encrypt_packet(br->master_json);
+  if (encrypt_buffer == NULL) {
+    json_decref(br->master_json);
+    free(br);
+    return_code(response, 500);
+    return U_CALLBACK_CONTINUE;
+  }
+
+  ulfius_set_string_body_response(response, 200, encrypt_buffer);
+
+  free(encrypt_buffer);
+  json_decref(br->master_json);
+  free(br);
+
+  return U_CALLBACK_CONTINUE;
+}
+
+int response_error(struct _u_response *response, struct response *br, int code)
+{
+  json_decref(br->master_json);
+  free(br);
+  return_code(response, code);
+  return U_CALLBACK_CONTINUE;
 }
