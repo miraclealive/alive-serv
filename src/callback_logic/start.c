@@ -11,6 +11,8 @@
 #include "../core/database.h"
 #include "../response_structs/base_response.h"
 
+static const char *ASSET_HASH = "dd7175e4bcdab476f38c33c7f34b5e4d";
+
 int callback_assethash(const struct _u_request *request, struct _u_response *response, void *user_data)
 {
   struct base_response *br = base_response_new(response);
@@ -20,7 +22,7 @@ int callback_assethash(const struct _u_request *request, struct _u_response *res
     return U_CALLBACK_CONTINUE;
   }
 
-  if (json_object_set_new(br->data_json, "asset_hash", json_string("dd7175e4bcdab476f38c33c7f34b5e4d")) != 0) {
+  if (json_object_set_new(br->data_json, "asset_hash", json_string(ASSET_HASH)) != 0) {
     json_decref(br->master_json);
     free(br);
     return_code(response, 500);
@@ -143,7 +145,7 @@ int callback_start(const struct _u_request *request, struct _u_response *respons
     return U_CALLBACK_CONTINUE;
   }
 
-  if (json_object_set_new(br->data_json, "asset_hash", json_string("dd7175e4bcdab476f38c33c7f34b5e4d")) != 0 ||
+  if (json_object_set_new(br->data_json, "asset_hash", json_string(ASSET_HASH)) != 0 ||
       json_object_set_new(br->data_json, "token", json_string(token)) != 0) {
     json_decref(br->master_json);
     free(token);

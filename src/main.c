@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <mysql.h>
 #include <ulfius.h>
 
@@ -66,8 +65,6 @@ int main(int argc, char *argv[])
     ulfius_clean_instance(&instance);
     return 1;
   }
-
-  srand(time(NULL));
 
   if (aes_init() != 0) {
     printf("Error initializing AES context\n");
