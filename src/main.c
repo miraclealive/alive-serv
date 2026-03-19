@@ -14,6 +14,7 @@
 #include "callback_logic/debug.h"
 #include "callback_logic/start.h"
 #include "callback_logic/login.h"
+#include "encryption/encryption.h"
 
 int main(int argc, char *argv[])
 {
@@ -68,6 +69,13 @@ int main(int argc, char *argv[])
 
   srand(time(NULL));
 
+  if (aes_init() != 0) {
+    printf("Error initializing AES context\n");
+    db_destroy_pool();
+    ulfius_clean_instance(&instance);
+    return 1;
+  }
+
   // Start the framework
   if (ulfius_start_framework(&instance) == U_OK) {
     printf("Starting server on port %d\n", instance.port);
@@ -80,6 +88,7 @@ int main(int argc, char *argv[])
   printf("Ending server\n");
 
   ulfius_stop_framework(&instance);
+  aes_cleanup();
   db_destroy_pool();
   ulfius_clean_instance(&instance);
 
