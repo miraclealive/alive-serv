@@ -9,15 +9,14 @@ This is a **heavily WIP** game server implementation for SIF2 MIRACLE LIVE!, who
 
 ## Status
 
-Five endpoints are currently implemented and functional:
+Four endpoints are currently implemented and functional:
 
-* `/maintenance/maintenance.json`: static file that returns the maintenance status of the server
 * `/api/start/assetHash`: returns the current asset version hash to the client
 * `/api/dummy/login`: returns the user_id resolved from client-provided info and initiates the login process
 * `/api/start`: returns the token resolved from the user_id along with the previously provided asset version hash
 * `/api/debug/error`: receives and logs a debug message from the client in the case of a catastrophic error
 
-These five endpoints currently enable the client to get to the title screen and a bit further into the login sequence.
+These endpoints currently enable the client to get to the title screen and a bit further into the login sequence.
 
 This server begun development in early February 2024 using Global version 1.0.2 and is still currently only tested against this version. I expect this server to work for later clients; including the Japanese versions, with little changes. However, this remains untested for now.
 

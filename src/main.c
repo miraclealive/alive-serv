@@ -8,9 +8,7 @@
 #include <time.h>
 #include <mysql.h>
 #include <ulfius.h>
-#include <jansson.h>
 
-#include "core/static_file_callback.h"
 #include "core/database.h"
 
 #include "callback_logic/debug.h"
@@ -27,7 +25,6 @@ int main(int argc, char *argv[])
   db_set_config(argv[2], atoi(argv[3]), argv[4], argv[5], argv[6]);
 
   struct _u_instance instance;
-  struct _static_file_config config;
 
   // Initialize instance with the port number
   if (ulfius_init_instance(&instance, atoi(argv[1]), NULL, NULL) != U_OK) {
@@ -35,16 +32,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  // Set up config object for static file serving
-  config.files_path = "static";
-  config.redirect_on_404 = NULL;
-  config.mime_types = NULL;
-
   // Endpoint list declaration
-
-  // Add static file callback function to maintenance endpoint
-  ulfius_add_endpoint_by_val(&instance, "GET", "/maintenance/maintenance.json", 
-                             NULL, 0, &callback_static_file, &config);
 
   // Add callbacks to game endpoints
   ulfius_add_endpoint_by_val(&instance, "POST", "/api/start/assetHash",
@@ -72,13 +60,12 @@ int main(int argc, char *argv[])
   }
   mysql_close(init_conn);
 
-  // Initialize connection pool
   if (db_init_pool() != 0) {
-    printf("Error initializing connection pool\n");
+    printf("Error initializing database connection pool\n");
     ulfius_clean_instance(&instance);
     return 1;
   }
-  
+
   srand(time(NULL));
 
   // Start the framework
